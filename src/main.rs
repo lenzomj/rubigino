@@ -1,4 +1,4 @@
-use rppal::spi::{Spi, Bus, SlaveSelect, Mode, Error};
+/*use rppal::spi::{Spi, Bus, SlaveSelect, Mode, Error};
 
 const MAX72XX_TEST: u8 = 0x0F;
 const MAX72XX_INTENSITY: u8 = 0x0A;
@@ -18,10 +18,11 @@ const ROW_SIZE: u8  = 8;
 const COL_SIZE: u8  = 8;
 const MAX_INTENSITY: u8 = 0xf;
 const MAX_SCANLIMIT: u8 = 7;
+*/
 
-
-fn main() {
-    let mut s = match Spi::new(Bus::Spi0,
+fn main() { }
+/*
+ *    let mut s = match Spi::new(Bus::Spi0,
                          SlaveSelect::Ss0,
                          10_000,
                          Mode::Mode0) {
@@ -50,4 +51,4 @@ fn main() {
     s.write(&[MAX72XX_D5, 0xf8]).unwrap();
     s.write(&[MAX72XX_D6, 0x30]).unwrap();
     s.write(&[MAX72XX_D7, 0x00]).unwrap();
-}
+*/

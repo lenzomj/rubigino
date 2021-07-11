@@ -1,3 +1,4 @@
+pub mod hal;
 pub mod gpio;
 pub mod parts;
 

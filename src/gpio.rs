@@ -1,63 +1,68 @@
-use rppal::gpio::{Gpio, IoPin, Mode, Error};
+use crate::hal::{Pin, GPIO, GPIOErr};
 
-pub struct GPIOPin {
-    num: u8,
-    pin: IoPin,
-}
 
-impl GPIOPin {
-    pub fn new(pin_num: u8) -> Option<GPIOPin> {
-        let board = match Gpio::new() {
-            Ok(result) => result,
-            Err(_) => {
-                println!("Error: Can't connect to GPIO.");
-                return None;
-            }
-        };
+#[cfg(all(target_arch="armv7"))]
+mod rpi {
+    use rppal::gpio::{Gpio, IoPin, Mode, Error};
 
-        let unconfigured_pin = match board.get(pin_num) {
-            Ok(result) => result,
-            Err(Error::PinNotAvailable(pin)) => {
-                println!("Error: Pin { } not available.", pin);
-                return None;
-            },
-            Err(_) => {
-                println!("Error: Unknown error.");
-                return None;
-            }
-        };
+    impl GPIO<IoPin> for Pin<IoPin> {
 
-        return Some(GPIOPin {
-            num: pin_num,
-            pin: unconfigured_pin.into_io(Mode::Input),
-        });
-    }
+        fn init(pin_num: u8) -> Result<Pin<IoPin>, GPIOErr> {
+            let board = match Gpio::new() {
+                Ok(result) => result,
+                Err(_) => {
+                    return GPIOErr::IOError("Can't connect to GPIO");
+                }
+            };
 
-    pub fn set_input(&mut self) {
-        self.pin.set_mode(Mode::Input);
-    }
+            let unconfigured_pin = match board.get(pin_num) {
+                Ok(result) => result,
+                Err(Error::PinNotAvailable(pin)) => {
+                    return GPIOErr::IOError(format!("Pin { } not available", pin));
+                },
+                Err(_) => {
+                    return GPIOErr::IOError("Unknown error.");
+                }
+            };
 
-    pub fn set_output(&mut self) {
-        self.pin.set_mode(Mode::Output);
-    }
+            return Ok(Pin {
+                pin_num: pin_num,
+                pin_mod: PinMode::Input,
+                pin_dev: unconfigured_pin.into_io(Mode::Input),
+            });
+        }
 
-    pub fn is_low(&self) -> bool {
-        self.pin.is_low()
-    }
+        fn is_low(&self) -> bool {
+            self.pin_dev.is_low()
+        }
 
-    pub fn is_high(&self) -> bool {
-        self.pin.is_high()
-    }
+        fn is_high(&self) -> bool {
+            self.pin_dev.is_high()
+        }
 
-    pub fn set_low(&mut self) {
-        self.pin.set_low();
-    }
+        fn to_input(&mut self) -> Result<(), GPIOErr> {
+            self.pin_dev.set_mode(Mode::Input);
+            return Ok(());
+        }
 
-    pub fn set_high(&mut self) {
-        self.pin.set_high();
-    }
+        fn to_output(&mut self) -> Result<(), GPIOErr> {
+            self.pin_dev.set_mode(Mode::Output);
+            return Ok(());
+        }
 
-    pub fn toggle(&mut self) {
-        self.pin.toggle();
+        fn set_low(&mut self) -> Result<(), GPIOErr> {
+            self.pin_dev.set_low();
+            return Ok(());
+        }
+
+        fn set_high(&mut self) -> Result<(), GPIOErr> {
+            self.pin_dev.set_high();
+            return Ok(());
+        }
+
+        fn toggle(&mut self) -> Result<(), GPIOErr> {
+            self.pin_dev.toggle();
+            return Ok(());
+        }
     }
 }

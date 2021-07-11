@@ -1,18 +1,13 @@
 use std::{thread, time};
-use rubigino::gpio::GPIOPin;
+use rubigino::gpio::rpi;
 
 fn main() {
     let delay = time::Duration::from_millis(500);
-    let mut pin = match GPIOPin::new(14) {
-        Some(result) => result,
-        None => {
-            return;
-        }
-    };
+    let mut pin = rpi::Pin<IoPin>::init(14)?;
 
-    pin.set_output();
+    pin.to_output()?;
     loop {
-        pin.toggle();
+        pin.toggle()?;
         thread::sleep(delay);
     }
 }
