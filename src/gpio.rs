@@ -1,68 +1,73 @@
-use crate::hal::{Pin, GPIO, GPIOErr};
-
-
+mod gen;
 #[cfg(all(target_arch="armv7"))]
-mod rpi {
-    use rppal::gpio::{Gpio, IoPin, Mode, Error};
+mod rpi;
 
-    impl GPIO<IoPin> for Pin<IoPin> {
+use std::fmt;
 
-        fn init(pin_num: u8) -> Result<Pin<IoPin>, GPIOErr> {
-            let board = match Gpio::new() {
-                Ok(result) => result,
-                Err(_) => {
-                    return GPIOErr::IOError("Can't connect to GPIO");
-                }
-            };
+pub enum PinMode {
+    Input,
+    Output,
+    InputOutput,
+    NotSet
+}
 
-            let unconfigured_pin = match board.get(pin_num) {
-                Ok(result) => result,
-                Err(Error::PinNotAvailable(pin)) => {
-                    return GPIOErr::IOError(format!("Pin { } not available", pin));
-                },
-                Err(_) => {
-                    return GPIOErr::IOError("Unknown error.");
-                }
-            };
+pub struct Pin<T> {
+    pin_num: u8,
+    pin_mod: PinMode,
+    pin_dev: T
+}
 
-            return Ok(Pin {
-                pin_num: pin_num,
-                pin_mod: PinMode::Input,
-                pin_dev: unconfigured_pin.into_io(Mode::Input),
-            });
+pub enum GPIOErr {
+    IOError(String),
+    ModeError(String)
+}
+
+pub trait GPIO<T> {
+    fn init(pin_num: u8) -> Result<Pin<T>, GPIOErr>;
+    fn is_low(&self) -> bool;
+    fn is_high(&self) -> bool;
+    fn set_mode(&mut self, mode: PinMode) -> Result<(), GPIOErr>;
+    fn set_low(&mut self) -> Result<(), GPIOErr>;
+    fn set_high(&mut self) -> Result<(), GPIOErr>;
+    fn toggle(&mut self) -> Result<(), GPIOErr>;
+}
+
+impl<T> Pin<T> {
+    pub fn new(pin_num: u8, pin_dev: T) -> Pin<T> {
+        Pin {
+            pin_num: pin_num,
+            pin_mod: PinMode::NotSet,
+            pin_dev: pin_dev
         }
+    }
 
-        fn is_low(&self) -> bool {
-            self.pin_dev.is_low()
+    pub fn pin_num(&self) -> u8 {
+        self.pin_num
+    }
+
+    pub fn is_input(&self) -> bool {
+        match self.pin_mod {
+            PinMode::Input => true,
+            PinMode::InputOutput => true,
+            _ => false
         }
+    }
 
-        fn is_high(&self) -> bool {
-            self.pin_dev.is_high()
-        }
-
-        fn to_input(&mut self) -> Result<(), GPIOErr> {
-            self.pin_dev.set_mode(Mode::Input);
-            return Ok(());
-        }
-
-        fn to_output(&mut self) -> Result<(), GPIOErr> {
-            self.pin_dev.set_mode(Mode::Output);
-            return Ok(());
-        }
-
-        fn set_low(&mut self) -> Result<(), GPIOErr> {
-            self.pin_dev.set_low();
-            return Ok(());
-        }
-
-        fn set_high(&mut self) -> Result<(), GPIOErr> {
-            self.pin_dev.set_high();
-            return Ok(());
-        }
-
-        fn toggle(&mut self) -> Result<(), GPIOErr> {
-            self.pin_dev.toggle();
-            return Ok(());
+    pub fn is_output(&self) -> bool {
+        match self.pin_mod {
+            PinMode::Output => true,
+            PinMode::InputOutput => true,
+            _ => false
         }
     }
 }
+
+impl fmt::Debug for GPIOErr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            GPIOErr::IOError(string) => write!(f, "{ }", string),
+            GPIOErr::ModeError(string) => write!(f, "{ }", string)
+        }
+    }
+}
+

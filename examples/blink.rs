@@ -3,7 +3,7 @@ use rubigino::gpio::rpi;
 
 fn main() {
     let delay = time::Duration::from_millis(500);
-    let mut pin = rpi::Pin<IoPin>::init(14)?;
+    let mut pin: Pin = rpi::Pin::new(14).unwrap();
 
     pin.to_output()?;
     loop {

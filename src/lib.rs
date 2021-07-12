@@ -1,6 +1,5 @@
-pub mod hal;
 pub mod gpio;
-pub mod parts;
+
 
 //#[cfg(test)]
 //mod tests {
