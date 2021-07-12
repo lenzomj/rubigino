@@ -1,34 +1,29 @@
-use crate::gpio::{Pin, PinMode, GPIO, GPIOErr};
-use rppal::gpio::{Gpio, IoPin, Mode, Error};
+pub use crate::gpio::{Pin, PinMode, GPIO, GPIOErr};
+pub use rppal::gpio::IoPin as RPiPin;
 
-impl Pin<IoPin> {
-    fn new(pin_num: u8) -> Result<Pin<IoPin>, GPIOErr> {
-        let board = match Gpio::new() {
+
+use rppal::gpio::{Gpio, Mode, Error};
+
+impl GPIO<RPiPin> for Pin<RPiPin> {
+    fn init(pin_num: u8) -> Result<Pin<RPiPin>, GPIOErr> {
+        let gpio = match Gpio::new() {
             Ok(result) => result,
-            Err(_) => {
-                return GPIOErr::IOError("Can't connect to GPIO");
+            Err(e) => {
+                return Err(GPIOErr::IOError(format!("{:?}", e)));
             }
         };
 
-        let unconfigured_pin = match board.get(pin_num) {
+        let raw_pin = match gpio.get(pin_num) {
             Ok(result) => result,
-            Err(Error::PinNotAvailable(pin)) => {
-                return GPIOErr::IOError(format!("Pin { } not available", pin));
-            },
-            Err(_) => {
-                return GPIOErr::IOError("Unknown error.");
+            Err(e) => {
+                return Err(GPIOErr::IOError(format!("{:?}", e)));
             }
         };
 
-        return Ok(Pin {
-            pin_num: pin_num,
-            pin_mod: PinMode::Input,
-            pin_dev: unconfigured_pin.into_io(Mode::Input),
-        });
+        let io_pin = raw_pin.into_io(Mode::Input);
+
+        return Ok(Pin::new(pin_num, io_pin));
     }
-}
-
-impl GPIO<IoPin> for Pin<IoPin> {
 
     fn is_low(&self) -> bool {
         self.pin_dev.is_low()
@@ -38,15 +33,15 @@ impl GPIO<IoPin> for Pin<IoPin> {
         self.pin_dev.is_high()
     }
 
-    fn to_input(&mut self) -> Result<(), GPIOErr> {
-        self.pin_dev.set_mode(Mode::Input);
+    fn set_mode(&mut self, mode: PinMode) -> Result<(), GPIOErr> {
+        match mode {
+            PinMode::Input  => self.pin_dev.set_mode(Mode::Input),
+            PinMode::Output => self.pin_dev.set_mode(Mode::Output),
+            _ => { }
+        };
         return Ok(());
     }
 
-    fn to_output(&mut self) -> Result<(), GPIOErr> {
-        self.pin_dev.set_mode(Mode::Output);
-        return Ok(());
-    }
 
     fn set_low(&mut self) -> Result<(), GPIOErr> {
         self.pin_dev.set_low();

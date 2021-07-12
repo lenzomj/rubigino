@@ -1,6 +1,6 @@
-mod gen;
-#[cfg(all(target_arch="armv7"))]
-mod rpi;
+pub mod gen;
+#[cfg(feature="rpi")]
+pub mod rpi;
 
 use std::fmt;
 
