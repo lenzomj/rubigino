@@ -1,8 +1,7 @@
-pub use crate::gpio::{Pin, PinMode, GPIO, GPIOErr};
+pub use crate::gpio::{GPIOErr, Pin, PinMode, GPIO};
 pub use rppal::gpio::IoPin as RPiPin;
 
-
-use rppal::gpio::{Gpio, Mode, Error};
+use rppal::gpio::{Gpio, Mode};
 
 impl GPIO<RPiPin> for Pin<RPiPin> {
     fn init(pin_num: u8) -> Result<Pin<RPiPin>, GPIOErr> {
@@ -35,13 +34,12 @@ impl GPIO<RPiPin> for Pin<RPiPin> {
 
     fn set_mode(&mut self, mode: PinMode) -> Result<(), GPIOErr> {
         match mode {
-            PinMode::Input  => self.pin_dev.set_mode(Mode::Input),
+            PinMode::Input => self.pin_dev.set_mode(Mode::Input),
             PinMode::Output => self.pin_dev.set_mode(Mode::Output),
-            _ => { }
+            _ => {}
         };
         return Ok(());
     }
-
 
     fn set_low(&mut self) -> Result<(), GPIOErr> {
         self.pin_dev.set_low();

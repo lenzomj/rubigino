@@ -1,14 +1,14 @@
+use rubigino::gpio::rpi::{Pin, PinMode, RPiPin, GPIO};
 use std::{thread, time};
-use rubigino::gpio::rpi::{Pin, PinMode, GPIO, GPIOErr, RPiPin};
 
 fn main() {
     let delay = time::Duration::from_millis(500);
     let mut pin: Pin<RPiPin> = Pin::init(14).unwrap();
 
-    pin.set_mode(PinMode::Output);
+    pin.set_mode(PinMode::Output).unwrap();
 
     loop {
-        pin.toggle();
+        pin.toggle().unwrap();
         thread::sleep(delay);
     }
 }

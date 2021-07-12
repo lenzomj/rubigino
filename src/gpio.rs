@@ -1,5 +1,5 @@
 pub mod gen;
-#[cfg(feature="rpi")]
+#[cfg(feature = "rpi")]
 pub mod rpi;
 
 use std::fmt;
@@ -8,18 +8,18 @@ pub enum PinMode {
     Input,
     Output,
     InputOutput,
-    NotSet
+    NotSet,
 }
 
 pub struct Pin<T> {
     pin_num: u8,
     pin_mod: PinMode,
-    pin_dev: T
+    pin_dev: T,
 }
 
 pub enum GPIOErr {
     IOError(String),
-    ModeError(String)
+    ModeError(String),
 }
 
 pub trait GPIO<T> {
@@ -37,7 +37,7 @@ impl<T> Pin<T> {
         Pin {
             pin_num: pin_num,
             pin_mod: PinMode::NotSet,
-            pin_dev: pin_dev
+            pin_dev: pin_dev,
         }
     }
 
@@ -49,7 +49,7 @@ impl<T> Pin<T> {
         match self.pin_mod {
             PinMode::Input => true,
             PinMode::InputOutput => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -57,7 +57,7 @@ impl<T> Pin<T> {
         match self.pin_mod {
             PinMode::Output => true,
             PinMode::InputOutput => true,
-            _ => false
+            _ => false,
         }
     }
 }
@@ -66,8 +66,7 @@ impl fmt::Debug for GPIOErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             GPIOErr::IOError(string) => write!(f, "{ }", string),
-            GPIOErr::ModeError(string) => write!(f, "{ }", string)
+            GPIOErr::ModeError(string) => write!(f, "{ }", string),
         }
     }
 }
-

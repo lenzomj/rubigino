@@ -20,7 +20,7 @@ const MAX_INTENSITY: u8 = 0xf;
 const MAX_SCANLIMIT: u8 = 7;
 */
 
-fn main() { }
+fn main() {}
 /*
  *    let mut s = match Spi::new(Bus::Spi0,
                          SlaveSelect::Ss0,

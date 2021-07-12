@@ -1,12 +1,16 @@
-use crate::gpio::{Pin, PinMode, GPIO, GPIOErr};
+use crate::gpio::{GPIOErr, Pin, PinMode, GPIO};
 
 pub struct GenIoPin {
-    pub pin_state: bool
+    pub pin_state: bool,
+    pub pin_mode: PinMode,
 }
 
 impl GPIO<GenIoPin> for Pin<GenIoPin> {
     fn init(pin_num: u8) -> Result<Pin<GenIoPin>, GPIOErr> {
-        let genio = GenIoPin { pin_state: false };
+        let genio = GenIoPin {
+            pin_state: false,
+            pin_mode: PinMode::Input,
+        };
         Ok(Pin::new(pin_num, genio))
     }
 
@@ -19,6 +23,7 @@ impl GPIO<GenIoPin> for Pin<GenIoPin> {
     }
 
     fn set_mode(&mut self, mode: PinMode) -> Result<(), GPIOErr> {
+        self.pin_dev.pin_mode = mode;
         Ok(())
     }
 
@@ -37,12 +42,12 @@ impl GPIO<GenIoPin> for Pin<GenIoPin> {
 
 #[cfg(test)]
 mod tests {
+    use crate::gpio::gen::GenIoPin;
     use crate::gpio::{Pin, GPIO};
-    use crate::gpio::gen::{GenIoPin};
 
     #[test]
-    fn it_works() {
-        let mut pin: Pin<GenIoPin> = Pin::init(14).unwrap();
-        assert_eq!(2 + 2, 4);
+    fn test_init() {
+        let pin: Pin<GenIoPin> = Pin::init(14).unwrap();
+        assert_eq!(pin.pin_num(), 14);
     }
 }
