@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-default = ["rpi"]
 rpi = ["rppal"]
 
 [dependencies]
 rppal = { version = "0.11.1", optional = true }
+
+[[example]]
+name = "blink"
+required-features  = ["rpi"]
