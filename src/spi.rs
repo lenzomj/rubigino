@@ -1,57 +1,35 @@
-/*pub enum PinMode {
-    Input,
-    Output,
-    InputOutput,
-    NotSet
+#[cfg(feature = "rpi")]
+pub mod rpi;
+
+use std::fmt;
+
+pub struct Bus<T> {
+    bus_clk: u32,
+    bus_dev: T,
 }
 
-pub struct Pin<T> {
-    pin_num: u8,
-    pin_mod: PinMode,
-    pin_dev: T
+pub enum SPIErr {
+    IOError(String);
 }
 
-impl<T> Pin<T> {
-    pub fn new(pin_num: u8, pin_dev: T) -> Pin<T> {
-        Pin {
-            pin_num: pin_num,
-            pin_mod: PinMode::NotSet,
-            pin_dev: pin_dev
-        }
-    }
+pub trait SPI<T> {
+    fn init(clock_speed: u32) -> Result<Bus<T>, SPIErr>
+    fn write(&mut self, bytes: &[u8]) -> Result<usize, SPIErr>;
+}
 
-    pub fn pin_num(&self) -> u8 {
-        self.pin_num
-    }
-
-    pub fn is_input(&self) -> bool {
-        match self.pin_mod {
-            PinMode::Input => true,
-            PinMode::InputOutput => true,
-            _ => false
-        }
-    }
-
-    pub fn is_output(&self) -> bool {
-        match self.pin_mod {
-            PinMode::Output => true,
-            PinMode::InputOutput => true,
-            _ => false
+impl<T> Bus<T> {
+    pub fn new(clock_speed: u32, bus_dev: T) -> Bus<T> {
+        Bus {
+            bus_clk: clock_speed,
+            bus_dev: bus_dev,
         }
     }
 }
 
-pub enum GPIOErr {
-    IOError(String),
-    ModeError(String)
+impl fmt::Debug for SPIErr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SPIErr::IOError(string) => write!(f, "{ }", string)
+        }
+    }
 }
-
-pub trait GPIO<T> {
-    fn init(pin_num: u8) -> Result<Pin<T>, GPIOErr>;
-    fn is_low(&self) -> bool;
-    fn is_high(&self) -> bool;
-    fn set_mode(&mut self, mode: PinMode) -> Result<(), GPIOErr>;
-    fn set_low(&mut self) -> Result<(), GPIOErr>;
-    fn set_high(&mut self) -> Result<(), GPIOErr>;
-    fn toggle(&mut self) -> Result<(), GPIOErr>;
-}*/
