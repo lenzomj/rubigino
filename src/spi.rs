@@ -9,11 +9,11 @@ pub struct Bus<T> {
 }
 
 pub enum SPIErr {
-    IOError(String);
+    IOError(String)
 }
 
 pub trait SPI<T> {
-    fn init(clock_speed: u32) -> Result<Bus<T>, SPIErr>
+    fn init(clock_speed: u32) -> Result<Bus<T>, SPIErr>;
     fn write(&mut self, bytes: &[u8]) -> Result<usize, SPIErr>;
 }
 
@@ -23,6 +23,10 @@ impl<T> Bus<T> {
             bus_clk: clock_speed,
             bus_dev: bus_dev,
         }
+    }
+
+    pub fn clock_speed(&self) -> u32 {
+        self.bus_clk
     }
 }
 

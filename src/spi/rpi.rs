@@ -1,14 +1,14 @@
-pub use crate::spi::{SPIErr, Bus};
+pub use crate::spi::{SPI, SPIErr, Bus};
 pub use rppal::spi::Spi as RPiSpi;
 
-use rppal::spi::{Bus, SlaveSelect, Mode};
+use rppal::spi::{Bus as RPiBus, SlaveSelect, Mode};
 
-impl SPI<RpiSpi> for Bus<RpiSpi> {
-    fn init(clock_speed: u32) -> Result<Bus<T>, SPIErr> {
-        let spi = match Spi::new(Bus::Spi0,
-                                 SlaveSelect::Ss0,
-                                 clock_speed,
-                                 Mode::Mode0) {
+impl SPI<RPiSpi> for Bus<RPiSpi> {
+    fn init(clock_speed: u32) -> Result<Bus<RPiSpi>, SPIErr> {
+        let spi = match RPiSpi::new(RPiBus::Spi0,
+                                    SlaveSelect::Ss0,
+                                    clock_speed,
+                                    Mode::Mode0) {
             Ok(result) => result,
             Err(e) => {
                 return Err(SPIErr::IOError(format!("{:?}", e)));
