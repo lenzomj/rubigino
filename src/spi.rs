@@ -9,7 +9,7 @@ pub struct Bus<T> {
 }
 
 pub enum SPIErr {
-    IOError(String)
+    IOError(String),
 }
 
 pub trait SPI<T> {
@@ -33,7 +33,7 @@ impl<T> Bus<T> {
 impl fmt::Debug for SPIErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SPIErr::IOError(string) => write!(f, "{ }", string)
+            SPIErr::IOError(string) => write!(f, "{ }", string),
         }
     }
 }

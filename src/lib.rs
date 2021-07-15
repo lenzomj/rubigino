@@ -1,4 +1,5 @@
 pub mod gpio;
+pub mod parts;
 pub mod spi;
 
 //#[cfg(test)]
