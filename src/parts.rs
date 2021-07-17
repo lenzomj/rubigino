@@ -1,13 +1,7 @@
 #[cfg(feature = "rpi")]
-mod rpi {
+pub mod rpi {
     use crate::spi::rpi::{Bus, RPiSpi, SPIErr, SPI};
-    use std::convert::TryFrom;
 
-    pub struct MAX72XX {
-        spi0_bus: Bus<RPiSpi>,
-        row_size: u8,
-        col_size: u8,
-    }
 
     const MAX72XX_TEST: u8 = 0x0F;
     const MAX72XX_INTENSITY: u8 = 0x0A;
@@ -28,6 +22,12 @@ mod rpi {
     ];
 
     const MAX_INTENSITY: u8 = 0xf;
+
+    pub struct MAX72XX {
+        spi0_bus: Bus<RPiSpi>,
+        row_size: u8,
+        col_size: u8,
+    }
 
     impl MAX72XX {
         pub fn init() -> Result<MAX72XX, SPIErr> {
@@ -55,43 +55,6 @@ mod rpi {
                 self.spi0_bus.write(&[*register, *byte]).unwrap();
             }
             Ok(())
-        }
-
-        pub fn transpose(input: &[u8; 8]) -> [u8; 8] {
-            let mut x: u32 = (u32::from(input[0]) << 24)
-                | (u32::from(input[1]) << 16)
-                | (u32::from(input[2]) << 08)
-                | (u32::from(input[3]));
-            let mut y: u32 = (u32::from(input[4]) << 24)
-                | (u32::from(input[5]) << 16)
-                | (u32::from(input[6]) << 08)
-                | (u32::from(input[7]));
-
-            let mut t: u32 = (x ^ (x >> 7)) & 0x00aa00aa;
-            x = x ^ t ^ (t << 7);
-            t = (y ^ (y >> 7)) & 0x00aa00aa;
-            y = y ^ t ^ (t << 7);
-
-            t = (x ^ (x >> 14)) & 0x0000cccc;
-            x = x ^ t ^ (t << 14);
-            t = (y ^ (y >> 14)) & 0x0000cccc;
-            y = y ^ t ^ (t << 14);
-
-            t = (x & 0xf0f0f0f0) | ((y >> 4) & 0x0f0f0f0f);
-            y = ((x << 4) & 0xf0f0f0f0) | (y & 0x0f0f0f0f);
-            x = t;
-
-            let output: [u8; 8] = [
-                u8::try_from((x >> 24) & 0x000000ff).unwrap(),
-                u8::try_from((x >> 16) & 0x000000ff).unwrap(),
-                u8::try_from((x >> 8) & 0x000000ff).unwrap(),
-                u8::try_from((x) & 0x000000ff).unwrap(),
-                u8::try_from((y >> 24) & 0x000000ff).unwrap(),
-                u8::try_from((y >> 16) & 0x000000ff).unwrap(),
-                u8::try_from((y >> 8) & 0x000000ff).unwrap(),
-                u8::try_from((y) & 0x000000ff).unwrap(),
-            ];
-            output
         }
 
         fn setup(&mut self) -> Result<(), SPIErr> {
