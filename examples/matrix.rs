@@ -1,4 +1,4 @@
-use rubigino::parts::MAX72XX;
+use rubigino::parts::rpi::MAX72XX;
 use std::{thread, time};
 
 fn main() {
@@ -20,7 +20,7 @@ fn main() {
 
     loop {
         max.write(&input).unwrap();
-        input = MAX72XX::rotate(&input);
+        input = MAX72XX::transpose(&input);
         thread::sleep(delay);
     }
 }
