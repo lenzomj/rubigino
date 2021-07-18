@@ -1,6 +1,11 @@
 pub mod gpio;
-pub mod parts;
 pub mod spi;
+
+pub mod display {
+    #[cfg(feature = "rpi")]
+    pub mod matrix;
+    pub mod font;
+}
 
 pub mod util {
 
@@ -14,7 +19,7 @@ pub mod util {
     impl Bits for u8 {
         fn to_bits(&self) -> [u8; 8] {
             let mut bits: [u8; 8] = [0; 8];
-            for b in 0 .. 8 {
+            for b in 0..8 {
                 bits[8 - b - 1] = (self >> b) & 0b00000001;
             }
             bits
@@ -46,7 +51,7 @@ pub mod util {
         let mut rot_matrix: [[u8; 8]; 8] = [[0; 8]; 8];
         for (r, byte) in bit_matrix.iter().enumerate() {
             for (c, _bit) in byte.iter().enumerate() {
-                rot_matrix[c][8-r-1] = bit_matrix[r][c];
+                rot_matrix[c][8 - r - 1] = bit_matrix[r][c];
             }
         }
         for (b, byte) in rot_matrix.iter().enumerate() {
