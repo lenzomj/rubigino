@@ -59,6 +59,14 @@ pub mod util {
         }
     }
 
+    pub fn shift_right(bytes: &mut [u8; 8]) {
+        transpose(bytes);
+        for byte in bytes.iter_mut() {
+            *byte = *byte >> 1;
+        }
+        transpose(bytes);
+    }
+
     pub fn transpose(bytes: &mut [u8; 8]) {
         let mut x: u32 = (u32::from(bytes[0]) << 24)
             | (u32::from(bytes[1]) << 16)
