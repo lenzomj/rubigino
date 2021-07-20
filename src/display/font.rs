@@ -1,8 +1,29 @@
 use std::convert::From;
+use std::fmt;
+use crate::util;
+
+const FONT_SIZE: usize = 8;
 
 pub struct Character {
     code: usize,
-    encoding: [u8; 8],
+    encoding: [u8; FONT_SIZE],
+}
+
+impl fmt::Display for Character {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let bit_matrix: [[u8; 8]; 8] = util::to_bit_matrix(&self.encoding);
+        for col_seg in &bit_matrix {
+            write!(f, "|").unwrap();
+            for row_bit in col_seg {
+                match row_bit {
+                    0 => write!(f, " "),
+                    _ => write!(f, "*"),
+                }.unwrap();
+            }
+            write!(f, "|\n").unwrap();
+        }
+        Ok(())
+    }
 }
 
 impl Character {
@@ -10,7 +31,7 @@ impl Character {
         self.code
     }
 
-    pub fn encoding(&self) -> [u8; 8] {
+    pub fn encoding(&self) -> [u8; FONT_SIZE] {
         self.encoding
     }
 }
@@ -52,7 +73,7 @@ fn get_font_code(code: usize) -> usize {
 // 0-31,127 : Code page 437, cf. https://en.wikipedia.org/wiki/Code_page_437
 // 32-126   : ASCII
 // 160-255  : ISO-8859-1, cf. https://en.wikipedia.org/wiki/ISO/IEC_8859-1
-const FONT_FACE: [[u8; 8]; 224] = [
+const FONT_FACE: [[u8; FONT_SIZE]; 224] = [
     // ---------------------------  0-127 ---------------------------
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // 0000 (uni0000.dup1)
     [0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e], // 0001 (uni0001)
