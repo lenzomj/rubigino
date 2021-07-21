@@ -2,9 +2,9 @@ pub mod gpio;
 pub mod spi;
 
 pub mod display {
+    pub mod font;
     #[cfg(feature = "rpi")]
     pub mod matrix;
-    pub mod font;
 }
 
 pub mod util {

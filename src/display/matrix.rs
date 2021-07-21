@@ -1,6 +1,6 @@
 //#[cfg(feature = "rpi")]
-use crate::spi::rpi::{Bus, RPiSpi, SPIErr, SPI};
 use crate::display::font::Character;
+use crate::spi::rpi::{Bus, RPiSpi, SPIErr, SPI};
 
 const MAX72XX_TEST: u8 = 0x0F;
 const MAX72XX_INTENSITY: u8 = 0x0A;

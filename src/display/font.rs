@@ -1,29 +1,14 @@
+use crate::util;
 use std::convert::From;
 use std::fmt;
-use crate::util;
+use std::ops;
 
 const FONT_SIZE: usize = 8;
 
+#[derive(Copy, Clone)]
 pub struct Character {
     code: usize,
     encoding: [u8; FONT_SIZE],
-}
-
-impl fmt::Display for Character {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bit_matrix: [[u8; 8]; 8] = util::to_bit_matrix(&self.encoding);
-        for col_seg in &bit_matrix {
-            write!(f, "|").unwrap();
-            for row_bit in col_seg {
-                match row_bit {
-                    0 => write!(f, " "),
-                    _ => write!(f, "*"),
-                }.unwrap();
-            }
-            write!(f, "|\n").unwrap();
-        }
-        Ok(())
-    }
 }
 
 impl Character {
@@ -56,12 +41,60 @@ impl From<char> for Character {
     }
 }
 
+impl fmt::Display for Character {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let bit_matrix: [[u8; 8]; 8] = util::to_bit_matrix(&self.encoding);
+        for col_seg in &bit_matrix {
+            write!(f, "|").unwrap();
+            for row_bit in col_seg {
+                match row_bit {
+                    0 => write!(f, " "),
+                    _ => write!(f, "*"),
+                }
+                .unwrap();
+            }
+            write!(f, "|\n").unwrap();
+        }
+        Ok(())
+    }
+}
+
+impl ops::Shl<usize> for Character {
+    type Output = Self;
+
+    fn shl(self, rhs: usize) -> Self {
+        let mut encoding: [u8; 8] = self.encoding();
+        for byte in encoding.iter_mut() {
+            *byte = *byte << rhs;
+        }
+        Self {
+            code: self.code,
+            encoding: encoding,
+        }
+    }
+}
+
+impl ops::Shr<usize> for Character {
+    type Output = Self;
+
+    fn shr(self, lhs: usize) -> Self {
+        let mut encoding: [u8; 8] = self.encoding();
+        for byte in encoding.iter_mut() {
+            *byte = *byte >> lhs;
+        }
+        Self {
+            code: self.code,
+            encoding: encoding,
+        }
+    }
+}
+
 fn get_font_code(code: usize) -> usize {
-    if (000 .. 127).contains(&code) {
+    if (000..127).contains(&code) {
         return code;
-    } else if (128 .. 159).contains(&code) {
+    } else if (128..159).contains(&code) {
         return code - 128;
-    } else if (160 .. 255).contains(&code) {
+    } else if (160..255).contains(&code) {
         return code - 32;
     }
     return 223;
@@ -301,4 +334,3 @@ const FONT_FACE: [[u8; FONT_SIZE]; 224] = [
     [0xe0, 0x60, 0x7c, 0x66, 0x66, 0x7c, 0x60, 0xf0], // 00fe (thorn)
     [0x00, 0xcc, 0x00, 0xcc, 0xcc, 0x7c, 0x0c, 0xf8], // 00ff (ydieresis)
 ];
-

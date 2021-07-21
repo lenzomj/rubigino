@@ -1,5 +1,5 @@
-use rubigino::display::matrix::{MAX72XX};
 use rubigino::display::font::Character;
+use rubigino::display::matrix::MAX72XX;
 use rubigino::util;
 use std::{thread, time};
 
@@ -15,7 +15,7 @@ fn main() {
         let c: Character = Character::from(val);
         let mut input: [u8; 8] = c.encoding();
         util::rotate_cw(&mut input);
-        for shift in 1 .. 7 {
+        for shift in 1..7 {
             util::shift_right(&mut input);
             max.write(&input).unwrap();
             thread::sleep(delay);
