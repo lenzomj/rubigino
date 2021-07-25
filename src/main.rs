@@ -1,12 +1,12 @@
-use rubigino::display::font::Character;
+use rubigino::display::font::{Characters};
 
 fn main() {
     let input: String = format!(" { } ", "Hello");
-    let raw_chars: Vec<char> = input.chars().rev().collect();
-    let chars: Vec<Character> = raw_chars.iter().map(|c| Character::from(*c)).collect();
+    let chars: Characters = Characters::from(input);
 
-    for window in chars.windows(2) {
-        println!("{}", window[0] >> 4);
-        println!("{}", window[1] << 4);
-    }
+    println!("{}", chars);
+
+    /*for c in chars {
+        println!("{}", c >> 4);
+    }*/
 }

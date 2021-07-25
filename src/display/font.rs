@@ -9,7 +9,10 @@ const FONT_SIZE: usize = 8;
 pub struct Character {
     code: usize,
     encoding: [u8; FONT_SIZE],
+    matrix: [[u8; FONT_SIZE]; FONT_SIZE],
 }
+
+pub struct Characters(Vec<Character>);
 
 impl Character {
     pub fn code(&self) -> usize {
@@ -19,6 +22,28 @@ impl Character {
     pub fn encoding(&self) -> [u8; FONT_SIZE] {
         self.encoding
     }
+
+    pub fn matrix(&self) -> [[u8; FONT_SIZE]; FONT_SIZE] {
+        self.matrix
+    }
+}
+
+impl From<String> for Characters {
+    fn from(item: String) -> Self {
+        let raw_chars: Vec<char> = item.chars().collect();
+        Characters(
+            raw_chars.iter().map(|c| Character::from(*c)).collect(),
+        )
+    }
+}
+
+impl IntoIterator for Characters {
+    type Item = Character;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
 }
 
 impl From<u8> for Character {
@@ -27,6 +52,7 @@ impl From<u8> for Character {
         Character {
             code: code,
             encoding: FONT_FACE[code],
+            matrix: util::to_bit_matrix(&FONT_FACE[code]),
         }
     }
 }
@@ -37,14 +63,34 @@ impl From<char> for Character {
         Character {
             code: code,
             encoding: FONT_FACE[code],
+            matrix: util::to_bit_matrix(&FONT_FACE[code]),
+
         }
+    }
+}
+
+impl fmt::Display for Characters {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for seg in 0 .. FONT_SIZE {
+            for char in &self.0 {
+                write!(f, "|").unwrap();
+                for row_bit in char.matrix()[seg] {
+                    match row_bit {
+                        0 => write!(f, " "),
+                        _ => write!(f, "*"),
+                    }
+                    .unwrap();
+                }
+            }
+            write!(f, "|\n").unwrap();
+        }
+        Ok(())
     }
 }
 
 impl fmt::Display for Character {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bit_matrix: [[u8; 8]; 8] = util::to_bit_matrix(&self.encoding);
-        for col_seg in &bit_matrix {
+        for col_seg in &self.matrix() {
             write!(f, "|").unwrap();
             for row_bit in col_seg {
                 match row_bit {
@@ -70,6 +116,7 @@ impl ops::Shl<usize> for Character {
         Self {
             code: self.code,
             encoding: encoding,
+            matrix: util::to_bit_matrix(&encoding),
         }
     }
 }
@@ -85,6 +132,7 @@ impl ops::Shr<usize> for Character {
         Self {
             code: self.code,
             encoding: encoding,
+            matrix: util::to_bit_matrix(&encoding),
         }
     }
 }
